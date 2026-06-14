@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     setLoading(true)
@@ -27,7 +27,7 @@ export default function LoginPage() {
     }
 
     router.refresh()
-    router.push('/workspaces/new')
+    router.push('/workspaces')
   }
 
   return (

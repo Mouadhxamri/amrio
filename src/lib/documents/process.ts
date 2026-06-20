@@ -72,11 +72,8 @@ function extractJsonText(buf: Buffer): string {
 }
 
 async function extractPdfText(buf: Buffer): Promise<string> {
-  // pdf-parse v2 is class-based: new PDFParse({ data }) then .getText().
-  // Dynamic import + serverExternalPackages keeps it out of the Next.js bundle.
-  const { PDFParse } = await import('pdf-parse')
-  const parser = new PDFParse({ data: buf })
-  const result = await parser.getText()
+  const pdfParse = (await import('pdf-parse')).default
+  const result = await pdfParse(buf)
   return result.text
 }
 
@@ -218,7 +215,7 @@ export async function processDocument(documentId: string): Promise<void> {
         content,
         token_count: Math.ceil(content.length / 4),
       }))
-      const { error: insertError } = await supabase.from('document_chunks').insert(batchRows)
+      const { error: insertError } = await supabase.from('document_chunks').upsert(batchRows, { onConflict: 'document_id,chunk_index', ignoreDuplicates: true })
       if (insertError) throw insertError
     }
     console.log('[processDocument] all chunks inserted', chunks.length, 'total')
